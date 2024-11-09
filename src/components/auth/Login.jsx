@@ -7,7 +7,8 @@ const Login = () => {
   const [credentials, setCredentials] = useState({
     email: '',
     password: '',
-    prestoCard: ''
+    prestoCard: '',
+    userType: ''
   });
   const [error, setError] = useState('');
   const { login } = useAuth();
@@ -52,6 +53,33 @@ const Login = () => {
               onChange={(e) => setCredentials({...credentials, password: e.target.value})}
               required
             />
+          </div>
+
+          <div className="form-group">
+            <label>User Type</label>
+            <div className="radio-group">
+              <label className="radio-label">
+                <input
+                  type="radio"
+                  name="userType"
+                  value="rider"
+                  checked={credentials.userType === 'rider'}
+                  onChange={(e) => setCredentials({...credentials, userType: e.target.value})}
+                  required
+                />
+                Want to Take a Ride
+              </label>
+              <label className="radio-label">
+                <input
+                  type="radio"
+                  name="userType"
+                  value="driver"
+                  checked={credentials.userType === 'driver'}
+                  onChange={(e) => setCredentials({...credentials, userType: e.target.value})}
+                />
+                Want to Give a Ride
+              </label>
+            </div>
           </div>
 
           <div className="form-group">
