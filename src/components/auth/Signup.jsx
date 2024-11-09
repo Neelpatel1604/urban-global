@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import './Login.css';
+import './Signup.css';
 
-const Login = () => {
+const Signup = () => {
   const [credentials, setCredentials] = useState({
     email: '',
     password: '',
@@ -11,7 +11,7 @@ const Login = () => {
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { signup } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -20,16 +20,16 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const result = await login(credentials);
+      const result = await signup(credentials);
       
       if (result.success) {
-        // Navigate based on the user type from the profile
+        // Navigate based on the user type
         navigate(result.userType === 'driver' ? '/driver/dashboard' : '/rider/dashboard');
       } else {
-        setError(result.error || 'Invalid email or password');
+        setError(result.error || 'Failed to create account');
       }
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('Signup error:', err);
       setError(err.message || 'An unexpected error occurred');
     } finally {
       setIsLoading(false);
@@ -37,13 +37,13 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <h2>Welcome Back</h2>
+    <div className="signup-container">
+      <div className="signup-card">
+        <div className="signup-header">
+          <h2>Create Account</h2>
         </div>
         
-        <form className="login-form" onSubmit={handleSubmit}>
+        <form className="signup-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <input
               type="email"
@@ -78,20 +78,20 @@ const Login = () => {
           {error && <div className="error-message">{error}</div>}
           
           <button 
-            className="login-button"
+            className="signup-button"
             type="submit"
             disabled={isLoading}
           >
-            {isLoading ? 'Logging in...' : 'Log In'}
+            {isLoading ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
 
         <div className="alternative-auth">
-          <p>Don't have an account? <Link to="/signup">Sign up</Link></p>
+          <p>Already have an account? <Link to="/login">Log in</Link></p>
         </div>
       </div>
     </div>
   );
 };
 
-export default Login; 
+export default Signup; 
