@@ -147,12 +147,12 @@ const RouteSelection = () => {
                 <div className="option-card">
                   <h3>Carpool</h3>
                   <p>3 drivers nearby</p>
-                  <p>From $5</p>
+                  <p>Estimated time:15mins</p>
                 </div>
                 <div className="option-card">
                   <h3>Bicycle</h3>
                   <p>5 bikes available</p>
-                  <p>5 mins walk to station</p>
+                  <p>Estimated time: 25 mins</p>
                 </div>
               </div>
             </div>

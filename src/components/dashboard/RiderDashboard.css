@@ -1,5 +1,5 @@
 .rider-dashboard {
-<<<<<<< HEAD
+
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
@@ -56,7 +56,7 @@
 .stat-value {
     font-weight: 600;
     color: #333;
-=======
+
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
@@ -131,5 +131,5 @@
   .requests-list {
     grid-template-columns: 1fr;
   }
->>>>>>> d1f40888d84fd09432ce18b5aef86bb759b7f91c
+
 } 
