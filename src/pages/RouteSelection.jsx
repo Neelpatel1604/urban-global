@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Map, { Marker, NavigationControl } from 'react-map-gl';
 import mapboxgl from 'mapbox-gl';
 import './RouteSelection.css';
@@ -27,6 +27,86 @@ const RouteSelection = () => {
   });
 
   const [loading, setLoading] = useState(false);
+
+  const [showLiveLocation, setShowLiveLocation] = useState(false);
+  const [liveLocation, setLiveLocation] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [busData, setBusData] = useState([]);
+
+  const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+  const [searchSuggestions] = useState([
+    { id: 1, text: "Use current location", icon: "📍" },
+    { id: 2, text: "Choose on map", icon: "🗺️" }
+  ]);
+
+  const [selectedTransportMode, setSelectedTransportMode] = useState(null);
+  const [busRoutes, setBusRoutes] = useState([
+    {
+      number: '1',
+      from: "Downtown",
+      to: "University",
+      nextBus: "5 mins",
+      duration: "30 mins",
+      occupancy: 75,
+      nextStops: [
+        { name: "Wellignton St", time: "10 mins", occupancy: 65 },
+        { name: "MainSt at Sproule Dr", time: "15 mins", occupancy: 55 }
+      ]
+    },
+    {
+      number: '3',
+      from: "Mall",
+      to: "Business District",
+      nextBus: "8 mins",
+      duration: "25 mins",
+      occupancy: 90,
+      nextStops: [
+        { name: "Market ", time: "12 mins", occupancy: 80 },
+        { name: "Tech Hub", time: "18 mins", occupancy: 70 }
+      ]
+    },
+    {
+      number: '7',
+      from: "Residential Area",
+      to: "Shopping Center",
+      nextBus: "3 mins",
+      duration: "35 mins",
+      occupancy: 45,
+      nextStops: [
+        { name: "Green Park", time: "8 mins", occupancy: 40 },
+        { name: "Library", time: "15 mins", occupancy: 35 }
+      ]
+    }
+  ]);
+
+  const [carpoolOptions, setCarpoolOptions] = useState([
+    {
+      driverName: "John D.",
+      rating: 4.8,
+      departure: "9:00 AM",
+      seats: 3,
+      carModel: "Toyota Camry",
+      time: "15 mins"
+    },
+    {
+      driverName: "Sarah M.",
+      rating: 4.9,
+      departure: "9:15 AM",
+      seats: 2,
+      carModel: "Honda Civic",
+      time: "15 mins"
+    },
+    {
+      driverName: "Mike R.",
+      rating: 4.7,
+      departure: "9:30 AM",
+      seats: 4,
+      carModel: "Tesla Model 3",
+      time: "15 mins"
+    }
+  ]);
+
+  const [showOptions, setShowOptions] = useState(false);
 
   const geocodeAddress = async (address) => {
     try {
@@ -76,8 +156,194 @@ const RouteSelection = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (route.startCoords && route.endCoords) {
-      // Handle route calculation here
-      console.log('Calculating route between:', route);
+      setShowOptions(true);
+      setSelectedTransportMode(null);
+    }
+  };
+
+  // Add live location detection
+  const detectLiveLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLiveLocation({ latitude, longitude });
+          // Reverse geocode to get address
+          reverseGeocode(latitude, longitude);
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+        }
+      );
+    }
+  };
+
+  const reverseGeocode = async (latitude, longitude) => {
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${MAPBOX_TOKEN}`
+      );
+      const data = await response.json();
+      if (data.features && data.features.length > 0) {
+        setRoute(prev => ({
+          ...prev,
+          start: data.features[0].place_name
+        }));
+      }
+    } catch (error) {
+      console.error('Reverse geocoding error:', error);
+    }
+  };
+
+  const handleInputFocus = () => {
+    if (!route.start) {
+      setShowSearchSuggestions(true);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setRoute({ ...route, start: e.target.value });
+    setShowSearchSuggestions(false);
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    if (suggestion.text === "Use current location") {
+      detectLiveLocation();
+    } else if (suggestion.text === "Choose on map") {
+      // Handle map selection
+      console.log("Map selection to be implemented");
+    }
+    setShowSearchSuggestions(false);
+  };
+
+  const handleTransportModeSelect = (mode) => {
+    setSelectedTransportMode(mode);
+  };
+
+  const renderTransportOptions = () => {
+    if (!selectedTransportMode) {
+      return (
+        <div className="options-list">
+          <div 
+            className="option-card"
+            onClick={() => handleTransportModeSelect('bus')}
+          >
+            <h3>🚌 Bus Route</h3>
+            <p>Next bus in 5 mins</p>
+            <p>From $3.40</p>
+          </div>
+          <div 
+            className="option-card"
+            onClick={() => handleTransportModeSelect('carpool')}
+          >
+            <h3>🚗 Carpool</h3>
+            <p>3 drivers nearby</p>
+            <p>Time: 15 mins</p>
+          </div>
+          <div 
+            className="option-card"
+            onClick={() => handleTransportModeSelect('bicycle')}
+          >
+            <h3>🚲 Bicycle</h3>
+            <p>5 bikes available</p>
+            <p>Eco-friendly option</p>
+          </div>
+        </div>
+      );
+    }
+
+    switch (selectedTransportMode) {
+      case 'bus':
+        return (
+          <div className="bus-routes-list">
+            {busRoutes.map((route, index) => (
+              <div key={index} className="bus-route-card">
+                <div className="route-header">
+                  <h3>Route {route.number}</h3>
+                  <span className="next-bus">Next bus: {route.nextBus}</span>
+                </div>
+                <div className="route-info">
+                  <div className="occupancy-info">
+                    <span>Current Occupancy:</span>
+                    <div className="occupancy-bar">
+                      <div 
+                        className="occupancy-fill"
+                        style={{ width: `${route.occupancy}%` }}
+                      ></div>
+                    </div>
+                    <span>{route.occupancy}% full</span>
+                  </div>
+                  <div className="time-info">
+                    <p>Duration: {route.duration}</p>
+                  </div>
+                  {route.occupancy > 85 && (
+                    <div className="next-stops">
+                      <h4>Next Available Stops:</h4>
+                      {route.nextStops.map((stop, idx) => (
+                        <div key={idx} className="stop-info">
+                          <span>{stop.name}</span>
+                          <span>In {stop.time}</span>
+                          <span>{stop.occupancy}% full</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+
+      case 'carpool':
+        return (
+          <div className="carpool-options-list">
+            {carpoolOptions.map((option, index) => (
+              <div key={index} className="carpool-option-card">
+                <div className="driver-info">
+                  <h3>{option.driverName}</h3>
+                  <div className="rating">⭐ {option.rating}</div>
+                </div>
+                <div className="ride-details">
+                  <p>🚗 {option.carModel}</p>
+                  <p>⏰ Departure: {option.departure}</p>
+                  <p>💺 Available seats: {option.seats}</p>
+                  <p>⏰ Time: {option.time}</p>
+                </div>
+                <button className="book-ride-btn">Book Ride</button>
+              </div>
+            ))}
+          </div>
+        );
+
+      case 'bicycle':
+        return (
+          <div className="bicycle-info-card">
+            <div className="environmental-impact">
+              <h3>Environmental Impact</h3>
+              <p>🌱 CO2 Saved: 2.5 kg</p>
+              <p>🔥 Calories Burned: ~450</p>
+              <p>🌍 Green Points: +50</p>
+            </div>
+            <div className="bike-stations">
+              <h3>Nearby Stations</h3>
+              <div className="stations-list">
+                <div className="station">
+                  <h4>Central Station</h4>
+                  <p>🚲 8 bikes available</p>
+                  <p>📍 0.5 km away</p>
+                </div>
+                <div className="station">
+                  <h4>Park Station</h4>
+                  <p>🚲 5 bikes available</p>
+                  <p>📍 1.2 km away</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
     }
   };
 
@@ -90,13 +356,31 @@ const RouteSelection = () => {
           <form onSubmit={handleSubmit} className="route-form">
             <div className="form-group">
               <label htmlFor="start">Start Location</label>
-              <div className="input-with-button">
-                <input
-                  id="start"
-                  value={route.start}
-                  onChange={(e) => setRoute({ ...route, start: e.target.value })}
-                  placeholder="Enter start location"
-                />
+              <div className="input-with-buttons">
+                <div className="input-wrapper">
+                  <input
+                    id="start"
+                    value={route.start}
+                    onChange={handleInputChange}
+                    onFocus={handleInputFocus}
+                    placeholder="Enter start location"
+                  />
+                  {showSearchSuggestions && (
+                    <div className="search-options">
+                      {searchSuggestions.map(suggestion => (
+                        <div
+                          key={suggestion.id}
+                          className="search-option"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                          <span className="option-icon">{suggestion.icon}</span>
+                          <span className="option-text">{suggestion.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <button 
                   type="button" 
                   onClick={() => handleLocationSearch('start')}
@@ -135,26 +419,18 @@ const RouteSelection = () => {
             </button>
           </form>
 
-          {(route.startCoords || route.endCoords) && (
+          {showOptions && (
             <div className="transport-options">
               <h2>Available Options</h2>
-              <div className="options-list">
-                <div className="option-card">
-                  <h3>Bus Route</h3>
-                  <p>Next bus in 10 mins</p>
-                  <p>Estimated time: 25 mins</p>
-                </div>
-                <div className="option-card">
-                  <h3>Carpool</h3>
-                  <p>3 drivers nearby</p>
-                  <p>Estimated time:15mins</p>
-                </div>
-                <div className="option-card">
-                  <h3>Bicycle</h3>
-                  <p>5 bikes available</p>
-                  <p>Estimated time: 25 mins</p>
-                </div>
-              </div>
+              {renderTransportOptions()}
+              {selectedTransportMode && (
+                <button 
+                  className="back-button"
+                  onClick={() => setSelectedTransportMode(null)}
+                >
+                  ← Back to all options
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -190,5 +466,55 @@ const RouteSelection = () => {
     </div>
   );
 };
+
+// Helper functions to generate fake data
+const generateBusRoutes = () => [
+  {
+    number: '1',
+    occupancy: 75,
+    nextBus: '5 mins',
+    duration: '30 mins'
+  },
+  {
+    number: '3',
+    occupancy: 45,
+    nextBus: '10 mins',
+    duration: '35 mins'
+  },
+  {
+    number: '7',
+    occupancy: 90,
+    nextBus: '3 mins',
+    duration: '28 mins'
+  }
+];
+
+const generateCarpoolOptions = () => [
+  {
+    driverName: 'John D.',
+    rating: 4.8,
+    departure: '9:00 AM',
+    seats: 3
+  },
+  {
+    driverName: 'Sarah M.',
+    rating: 4.9,
+    departure: '9:15 AM',
+    seats: 2
+  }
+];
+
+const generateNearbyStations = () => [
+  {
+    name: 'Central Station',
+    distance: '0.5 km',
+    bikes: 8
+  },
+  {
+    name: 'Park Station',
+    distance: '1.2 km',
+    bikes: 5
+  }
+];
 
 export default RouteSelection; 

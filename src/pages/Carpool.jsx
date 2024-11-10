@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Carpool.css';
 
 const Carpool = () => {
-  const rideRequests = [
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [isHiding, setIsHiding] = useState(false);
+  const [rideRequests] = useState([
     {
       id: 1,
       passenger: "Perays",
@@ -30,7 +32,22 @@ const Carpool = () => {
       time: "15:30",
       passengers: 3
     }
-  ];
+  ]);
+
+  const handleOfferRide = (requestId) => {
+    setShowSuccessPopup(true);
+    
+    // Start hiding animation after 2.5 seconds
+    setTimeout(() => {
+      setIsHiding(true);
+    }, 2500);
+
+    // Remove popup after animation completes
+    setTimeout(() => {
+      setShowSuccessPopup(false);
+      setIsHiding(false);
+    }, 2800);
+  };
 
   return (
     <div className="carpool-container">
@@ -47,11 +64,26 @@ const Carpool = () => {
                 <p><strong>Time:</strong> {request.time}</p>
                 <p><strong>Number of Passengers:</strong> {request.passengers}</p>
               </div>
-              <button className="offer-button">Offer Ride</button>
+              <button 
+                className="offer-button"
+                onClick={() => handleOfferRide(request.id)}
+              >
+                Offer Ride
+              </button>
             </div>
           ))}
         </div>
       </div>
+
+      {showSuccessPopup && (
+        <div className={`success-popup ${isHiding ? 'hiding' : ''}`}>
+          <div className="popup-content">
+            <span className="success-icon">✅</span>
+            <h3>Ride Offered Successfully!</h3>
+            <p>The passenger will be notified of your offer.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
