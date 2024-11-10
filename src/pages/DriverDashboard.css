@@ -19,12 +19,12 @@
 }
 
 .stat-card {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  text-align: center;
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #28a745;
   transition: transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .stat-card:hover {
@@ -135,7 +135,8 @@
   background: #f8f9fa;
   padding: 15px;
   border-radius: 8px;
-  text-align: center;
+  border-left: 4px solid #28a745;
+  transition: transform 0.2s;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
