@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      const response = await fetch('your_api_url/auth/login', {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
       
       if (data.token) {
         localStorage.setItem('token', data.token);
-        setUser(data.user);
+        setUser(data);
         return { success: true };
       }
       return { success: false, error: data.message };
@@ -65,8 +65,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const signup = async (credentials) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
+      const data = await response.json();
+      
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        setUser(data.user);
+        return { success: true, userType: data.user.userType };
+      }
+      return { success: false, error: data.message };
+    } catch (error) {
+      return { success: false, error: 'Registration failed' };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, signup }}>
       {children}
     </AuthContext.Provider>
   );

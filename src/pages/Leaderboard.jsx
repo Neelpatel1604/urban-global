@@ -29,13 +29,13 @@ const Leaderboard = () => {
           className={activeTab === 'carpool' ? 'active' : ''}
           onClick={() => setActiveTab('carpool')}
         >
-          Carpooling
+          🚗 Carpool
         </button>
         <button 
           className={activeTab === 'cycling' ? 'active' : ''}
           onClick={() => setActiveTab('cycling')}
         >
-          Cycling
+          🚴 Cycling
         </button>
       </div>
 

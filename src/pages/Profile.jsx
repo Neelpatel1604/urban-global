@@ -3,8 +3,8 @@ import './Profile.css';
 
 const Profile = () => {
   const [profile] = useState({
-    name: 'John Doe',
-    email: 'john@example.com',
+    name: 'Urban Global',
+    email: 'urbanglobal@gmail.com',
     totalPoints: 1250,
     achievements: [
       'Early Adopter',
@@ -23,22 +23,25 @@ const Profile = () => {
         <p>{profile.email}</p>
       </div>
 
-      <div className="profile-stats">
-        <div className="stat">
-          <h3>Total Points</h3>
-          <p>{profile.totalPoints}</p>
+      <div className="profile-content">
+        <div className="points-section">
+          <h2>Total Points</h2>
+          <div className="points-display">
+            <span className="points-number">{profile.totalPoints}</span>
+            <span className="points-label">points</span>
+          </div>
         </div>
-      </div>
 
-      <div className="achievements-section">
-        <h2>Achievements</h2>
-        <div className="achievements-grid">
-          {profile.achievements.map((achievement, index) => (
-            <div key={index} className="achievement-card">
-              <span className="achievement-icon">🏆</span>
-              <p>{achievement}</p>
-            </div>
-          ))}
+        <div className="achievements-section">
+          <h2>Achievements</h2>
+          <div className="achievements-grid">
+            {profile.achievements.map((achievement, index) => (
+              <div key={index} className="achievement-card">
+                <span className="achievement-icon">🏆</span>
+                <p>{achievement}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
