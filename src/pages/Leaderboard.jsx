@@ -5,19 +5,19 @@ const Leaderboard = () => {
   const [activeTab, setActiveTab] = useState('carpool');
 
   const carpoolLeaders = [
-    { name: 'John Doe', points: 1500 },
-    { name: 'Jane Smith', points: 1350 },
-    { name: 'Mike Johnson', points: 1200 },
-    { name: 'Sarah Wilson', points: 1100 },
-    { name: 'Tom Brown', points: 1000 }
+    { name: 'Neel', points: 1500 },
+    { name: 'Prathmesh', points: 1350 },
+    { name: 'Preyas', points: 1200 },
+    { name: 'Rohit', points: 1100 },
+    { name: 'Soham', points: 1000 }
   ];
 
   const cyclingLeaders = [
-    { name: 'Emma Davis', points: 2000 },
-    { name: 'James Wilson', points: 1800 },
-    { name: 'Lisa Anderson', points: 1600 },
-    { name: 'Chris Martin', points: 1400 },
-    { name: 'Amy White', points: 1200 }
+    { name: 'Saad', points: 2000 },
+    { name: 'Simran', points: 1800 },
+    { name: 'Arshdeep', points: 1600 },
+    { name: 'Anirudh', points: 1400 },
+    { name: 'Het', points: 1200 }
   ];
 
   return (
